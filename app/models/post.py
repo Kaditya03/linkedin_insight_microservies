@@ -11,5 +11,4 @@ class Post(Base):
 
     page_id = Column(Integer, ForeignKey("pages.id"))
 
-    # ✅ relationship back to Page
     page = relationship("Page", back_populates="posts")

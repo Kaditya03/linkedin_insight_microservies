@@ -1,13 +1,15 @@
-from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
 
 from app.models.page import Page
-from app.services.scraper_service import LinkedInScraper  # ✅ FIX
+from app.services.scraper_service import LinkedInScraper
+from app.services.post_service import PostService
 
 class PageService:
 
     def __init__(self):
         self.scraper = LinkedInScraper()
+        self.post_service = PostService()
 
     async def get_page(self, page_id: str, db: AsyncSession):
         result = await db.execute(
@@ -24,5 +26,8 @@ class PageService:
         db.add(page)
         await db.commit()
         await db.refresh(page)
+
+        # 🔹 STORE POSTS AFTER PAGE IS CREATED
+        await self.post_service.create_posts_for_page(page.id, db)
 
         return page

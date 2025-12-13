@@ -13,5 +13,5 @@ class Page(Base):
     followers_count = Column(Integer)
     description = Column(Text)
 
-    # ✅ relationship to Post
+    # relationship to posts
     posts = relationship("Post", back_populates="page", cascade="all, delete")
