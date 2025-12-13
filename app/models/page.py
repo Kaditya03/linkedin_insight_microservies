@@ -5,7 +5,7 @@ from app.models.base import Base
 class Page(Base):
     __tablename__ = "pages"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, index=True)
     linkedin_page_id = Column(String, unique=True, index=True)
     name = Column(String)
     url = Column(String)
@@ -13,4 +13,5 @@ class Page(Base):
     followers_count = Column(Integer)
     description = Column(Text)
 
-    posts = relationship("Post", back_populates="page")
+    # ✅ relationship to Post
+    posts = relationship("Post", back_populates="page", cascade="all, delete")

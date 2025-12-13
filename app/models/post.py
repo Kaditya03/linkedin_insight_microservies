@@ -5,9 +5,11 @@ from app.models.base import Base
 class Post(Base):
     __tablename__ = "posts"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, index=True)
     content = Column(Text)
     likes = Column(Integer)
+
     page_id = Column(Integer, ForeignKey("pages.id"))
 
+    # ✅ relationship back to Page
     page = relationship("Page", back_populates="posts")
