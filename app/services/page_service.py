@@ -19,22 +19,26 @@ class PageService:
         if page:
             return page
 
-        # Scrape page
+        # 1️⃣ Scrape page details
         page_data = await self.scraper.scrape_page(page_id)
+
         page = Page(**page_data)
         db.add(page)
-        await db.flush()  # get page.id
-
-        # Scrape posts
-        posts = await self.scraper.scrape_posts()
-        for post_data in posts:
-            post = Post(
-                content=post_data["content"],
-                likes=post_data["likes"],
-                page_id=page.id
-            )
-            db.add(post)
-
         await db.commit()
         await db.refresh(page)
+
+        # 2️⃣ Scrape & store posts (MANDATORY)
+        posts = await self.scraper.scrape_posts()
+
+        for post in posts:
+            db.add(
+                Post(
+                    content=post["content"],
+                    likes=post["likes"],
+                    page_id=page.id
+                )
+            )
+
+        await db.commit()
+
         return page
