@@ -1,10 +1,6 @@
 class LinkedInScraper:
-    """
-    This class ONLY scrapes data.
-    No DB logic here.
-    """
 
-    async def scrape_page(self, page_id: str) -> dict:
+    async def scrape_page(self, page_id: str):
         return {
             "linkedin_page_id": page_id,
             "name": page_id.capitalize(),
