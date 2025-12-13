@@ -1,16 +1,17 @@
 class LinkedInScraper:
-    """
-    Responsible only for fetching data from LinkedIn.
-    No database logic here.
-    """
 
     async def scrape_page(self, page_id: str) -> dict:
-        # Placeholder logic (safe for demo)
         return {
             "linkedin_page_id": page_id,
-            "name": page_id.capitalize(),
+            "name": page_id.capitalize().strip(),
             "url": f"https://www.linkedin.com/company/{page_id}/",
             "industry": "Technology",
             "followers_count": 25000,
             "description": "Sample LinkedIn company page"
         }
+
+    async def scrape_posts(self):
+        return [
+            {"content": "We are hiring!", "likes": 120},
+            {"content": "New product launch", "likes": 300},
+        ]

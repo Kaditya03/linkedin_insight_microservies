@@ -1,7 +1,8 @@
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.models.page import Page
-from app.services.scraper_service import LinkedInScraper
+from app.services.scraper_service import LinkedInScraper  # ✅ FIX
 
 class PageService:
 
@@ -18,8 +19,8 @@ class PageService:
             return page
 
         data = await self.scraper.scrape_page(page_id)
-
         page = Page(**data)
+
         db.add(page)
         await db.commit()
         await db.refresh(page)

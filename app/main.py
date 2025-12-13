@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from app.api.page_routes import router as page_router
+from app.api.post_routes import router as post_router
 
 app = FastAPI(
     title="LinkedIn Insights Service",
@@ -7,6 +8,7 @@ app = FastAPI(
 )
 
 app.include_router(page_router, prefix="/api")
+app.include_router(post_router, prefix="/api")
 
 @app.get("/")
 async def root():
