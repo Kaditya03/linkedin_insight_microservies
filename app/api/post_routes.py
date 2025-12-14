@@ -1,11 +1,16 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
+<<<<<<< HEAD
 from sqlalchemy.future import select
+=======
+from sqlalchemy import select
+>>>>>>> master
 
 from app.core.database import get_db
 from app.models.post import Post
 from app.models.page import Page
 
+<<<<<<< HEAD
 router = APIRouter()   # ✅ MUST EXIST
 
 
@@ -35,6 +40,20 @@ async def get_page_posts(
     )
 
     posts = posts_result.scalars().all()
+=======
+router = APIRouter()
+
+@router.get("/pages/{page_id}/posts")
+async def get_posts(page_id: str, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(
+        select(Post)
+        .join(Page)
+        .where(Page.linkedin_page_id == page_id)
+        .order_by(Post.id.desc())
+    )
+
+    posts = result.scalars().all()
+>>>>>>> master
 
     return [
         {
