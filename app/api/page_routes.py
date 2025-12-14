@@ -1,27 +1,10 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-<<<<<<< HEAD
-from sqlalchemy.future import select
-=======
 from sqlalchemy import select
->>>>>>> master
 
 from app.core.database import get_db
 from app.models.page import Page
 from app.services.page_service import PageService
-<<<<<<< HEAD
-
-router = APIRouter()
-service = PageService()
-
-
-@router.get("/pages/{page_id}")
-async def get_page(page_id: str, db: AsyncSession = Depends(get_db)):
-    page = await service.get_page(page_id, db)
-    return {
-        "id": page.id,
-        "name": page.name,
-=======
 from app.services.ai_summary_service import AISummaryService
 
 router = APIRouter()
@@ -40,19 +23,15 @@ async def get_page(page_id: str, db: AsyncSession = Depends(get_db)):
     return {
         "id": page.id,
         "name": page.name.strip(),
->>>>>>> master
         "industry": page.industry,
         "followers": page.followers_count,
         "description": page.description
     }
 
 
-<<<<<<< HEAD
-=======
 # -----------------------------
 # FILTER PAGES (MANDATORY)
 # -----------------------------
->>>>>>> master
 @router.get("/pages")
 async def filter_pages(
     min_followers: int = 0,
@@ -68,10 +47,7 @@ async def filter_pages(
         query = query.where(Page.industry.ilike(f"%{industry}%"))
 
     result = await db.execute(query)
-<<<<<<< HEAD
     pages = result.scalars().all()
-=======
->>>>>>> master
 
     return [
         {
@@ -80,11 +56,7 @@ async def filter_pages(
             "industry": p.industry,
             "followers": p.followers_count
         }
-<<<<<<< HEAD
         for p in pages
-    ]
-=======
-        for p in result.scalars().all()
     ]
 
 
@@ -106,4 +78,3 @@ async def get_page_summary(page_id: str, db: AsyncSession = Depends(get_db)):
         "page": page.name.strip(),
         "summary": summary
     }
->>>>>>> master
