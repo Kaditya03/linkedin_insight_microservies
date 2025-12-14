@@ -8,7 +8,7 @@ app = FastAPI(
 )
 
 app.include_router(page_router, prefix="/api")
-app.include_router(post_router, prefix="/api")
+app.include_router(post_router, prefix="/api")  # ✅ THIS LINE IS REQUIRED
 
 @app.get("/")
 async def root():

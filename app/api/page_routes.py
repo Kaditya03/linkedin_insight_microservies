@@ -14,7 +14,8 @@ service = PageService()
 async def get_page(page_id: str, db: AsyncSession = Depends(get_db)):
     page = await service.get_page(page_id, db)
     return {
-        "name": page.name.strip(),
+        "id": page.id,
+        "name": page.name,
         "industry": page.industry,
         "followers": page.followers_count,
         "description": page.description
@@ -36,7 +37,6 @@ async def filter_pages(
         query = query.where(Page.industry.ilike(f"%{industry}%"))
 
     result = await db.execute(query)
-
     pages = result.scalars().all()
 
     return [

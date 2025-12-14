@@ -1,12 +1,13 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
 from app.core.database import get_db
-from app.models.page import Page
 from app.models.post import Post
+from app.models.page import Page
 
-router = APIRouter()
+router = APIRouter()   # ✅ MUST EXIST
+
 
 @router.get("/pages/{page_id}/posts")
 async def get_page_posts(
@@ -15,16 +16,15 @@ async def get_page_posts(
     limit: int = 10,
     db: AsyncSession = Depends(get_db)
 ):
-    # 1️⃣ Find page by LinkedIn page id
+    # find page
     result = await db.execute(
         select(Page).where(Page.linkedin_page_id == page_id)
     )
     page_obj = result.scalar_one_or_none()
 
     if not page_obj:
-        raise HTTPException(status_code=404, detail="Page not found")
+        return []
 
-    # 2️⃣ Pagination
     offset = (page - 1) * limit
 
     posts_result = await db.execute(
