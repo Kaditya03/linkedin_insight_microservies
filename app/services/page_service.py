@@ -1,47 +1,73 @@
-from sqlalchemy import select
+
+
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+import json
 
 from app.models.page import Page
-from app.models.post import Post
 from app.services.scraper_service import LinkedInScraper
+from app.core.cache import redis_client  # async redis client
 
 
 class PageService:
     def __init__(self):
         self.scraper = LinkedInScraper()
 
-    async def get_page(self, page_id: str, db: AsyncSession):
-        page_id = page_id.strip().lower()
+    async def get_page(self, page_id: str, db: AsyncSession) -> Page:
+        cache_key = f"page:{page_id}"
 
-        # Check if page already exists
+        # -------------------------
+        # 1. CHECK CACHE
+        # -------------------------
+        cached = await redis_client.get(cache_key)
+        if cached:
+            data = json.loads(cached)
+            return Page(**data)  # 🔥 convert back to ORM object
+
+        # -------------------------
+        # 2. CHECK DATABASE
+        # -------------------------
         result = await db.execute(
             select(Page).where(Page.linkedin_page_id == page_id)
         )
         page = result.scalar_one_or_none()
 
         if page:
+            await redis_client.setex(
+                cache_key,
+                300,
+                json.dumps({
+                    "id": page.id,
+                    "linkedin_page_id": page.linkedin_page_id,
+                    "name": page.name,
+                    "industry": page.industry,
+                    "followers_count": page.followers_count,
+                    "description": page.description
+                })
+            )
             return page
 
-        # Scrape page data
-        page_data = await self.scraper.scrape_page(page_id)
-        page = Page(**page_data)
+        # -------------------------
+        # 3. SCRAPE & SAVE
+        # -------------------------
+        data = await self.scraper.scrape_page(page_id)
 
+        page = Page(**data)
         db.add(page)
         await db.commit()
         await db.refresh(page)
 
-        # Scrape and save posts
-        posts = await self.scraper.scrape_posts(page_id)
+        await redis_client.setex(
+            cache_key,
+            300,
+            json.dumps({
+                "id": page.id,
+                "linkedin_page_id": page.linkedin_page_id,
+                "name": page.name,
+                "industry": page.industry,
+                "followers_count": page.followers_count,
+                "description": page.description
+            })
+        )
 
-        for post in posts:
-            db.add(
-                Post(
-                    content=post.get("content"),
-                    likes=post.get("likes", 0),
-                    comments=post.get("comments", 0),
-                    page_id=page.id
-                )
-            )
-
-        await db.commit()
         return page
