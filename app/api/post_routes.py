@@ -1,17 +1,12 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-<<<<<<< HEAD
-from sqlalchemy.future import select
-=======
 from sqlalchemy import select
->>>>>>> master
 
 from app.core.database import get_db
 from app.models.post import Post
 from app.models.page import Page
 
-<<<<<<< HEAD
-router = APIRouter()   # ✅ MUST EXIST
+router = APIRouter()
 
 
 @router.get("/pages/{page_id}/posts")
@@ -21,7 +16,7 @@ async def get_page_posts(
     limit: int = 10,
     db: AsyncSession = Depends(get_db)
 ):
-    # find page
+    # find page by LinkedIn page id
     result = await db.execute(
         select(Page).where(Page.linkedin_page_id == page_id)
     )
@@ -35,30 +30,19 @@ async def get_page_posts(
     posts_result = await db.execute(
         select(Post)
         .where(Post.page_id == page_obj.id)
+        .order_by(Post.id.desc())
         .offset(offset)
         .limit(limit)
     )
 
     posts = posts_result.scalars().all()
-=======
-router = APIRouter()
-
-@router.get("/pages/{page_id}/posts")
-async def get_posts(page_id: str, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(
-        select(Post)
-        .join(Page)
-        .where(Page.linkedin_page_id == page_id)
-        .order_by(Post.id.desc())
-    )
-
-    posts = result.scalars().all()
->>>>>>> master
 
     return [
         {
+            "id": post.id,
             "content": post.content,
-            "likes": post.likes
+            "likes": post.likes,
+            "created_at": post.created_at
         }
         for post in posts
     ]
